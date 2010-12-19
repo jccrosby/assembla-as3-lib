@@ -1,0 +1,11 @@
+# Files
+.DS_Store
+.actionScriptProperties
+.flexLibProperties
+.project
+
+# Directories
+.settings/**/*
+
+# Wildcards
+*~ 
