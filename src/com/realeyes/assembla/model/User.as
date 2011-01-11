@@ -15,15 +15,13 @@ package com.realeyes.assembla.model
 		public var username:String;
 		public var password:String;
 		public var remembered:Boolean;
-		public var authToken:String;
+		private var _authToken:String;
 		
 		public function User( username:String=null, password:String=null )
 		{
 			super();
 			this.username = username;
 			this.password = password;
-			
-			generateAuthToken();
 		}
 		
 		public function generateAuthToken():void
@@ -32,15 +30,16 @@ package com.realeyes.assembla.model
 			{
 				var encoder:Base64Encoder = new Base64Encoder();
 				encoder.encode( username + ":" + password );
-				authToken = encoder.flush();
+				_authToken = encoder.flush();
 			}
 		}
 		
-		public function clearData():void
+		public function clear():void
 		{
 			username = "";
 			password = "";
-			authToken = "";
+			_authToken = "";
+			remembered = false;
 		}
 		
 		public function writeExternal( output:IDataOutput ):void
@@ -56,7 +55,14 @@ package com.realeyes.assembla.model
 			username = input.readUTF();
 			password = input.readUTF();
 			remembered = input.readBoolean();
-			authToken = input.readUTF();
+			_authToken = input.readUTF();
 		}
+
+		public function get authToken():String
+		{
+			generateAuthToken();
+			return _authToken;
+		}
+
 	}
 }

@@ -25,10 +25,10 @@ package com.realeyes.assembla.service
 	import mx.rpc.events.ResultEvent;
 	import mx.utils.ObjectUtil;
 	
-	[Event( name="spacesResult", type="mx.rpc.events.ResultEvent" )]
-	[Event( name="milestonesResult", type="mx.rpc.events.ResultEvent" )]
-	[Event( name="ticketsResult", type="mx.rpc.events.ResultEvent" )]
-	[Event( name="taskResult", type="mx.rpc.events.ResultEvent" )]
+	[Event( name="spacesResult", type="com.realeyes.assembla.service.AssemblaService" )]
+	[Event( name="milestonesResult", type="com.realeyes.assembla.service.AssemblaService" )]
+	[Event( name="ticketsResult", type="com.realeyes.assembla.service.AssemblaService" )]
+	[Event( name="createdResult", type="com.realeyes.assembla.service.AssemblaService" )]
 	[Event( name="fault", type="mx.rpc.events.FaultEvent" )]
 	[Event( name="ioError", type="flash.events.IOErrorEvent" )]
 	
@@ -52,7 +52,7 @@ package com.realeyes.assembla.service
 		static public const SPACES_RESULT:String= "spacesResult";
 		static public const MILESTONES_RESULT:String= "milestonesResult";
 		static public const TICKETS_RESULT:String= "ticketsResult";
-		static public const TASK_RESULT:String= "taskResult";
+		static public const CREATED_RESULT:String= "createdResult";
 		
 		static public const SPACES:String = "/spaces/my_spaces";
 		static public const MILESTONES:String = "/spaces/@@SPACE_ID@@/milestones";
@@ -124,7 +124,7 @@ package com.realeyes.assembla.service
 		}
 		
 		private function _buildBaseRequest( url:String, data:Object=null, method:String=URLRequestMethod.GET ):URLRequest
-		{
+		{   
 			var request:URLRequest = new URLRequest()
 			request.url = url;
 			request.method = method;
@@ -180,19 +180,16 @@ package com.realeyes.assembla.service
 			{
 				case "spaces":
 				{
-					var spacesLookup:Dictionary = new Dictionary();
+					var spaces:ArrayCollection= new ArrayCollection();
 					for each( var space:XML in resultXML..space )
 					{
 						var newSpace:Space = new Space();
 						newSpace.id = space.id;
 						newSpace.name = space.name;
-						
-						spacesLookup[ newSpace.id ] = newSpace;
+						spaces.addItem( newSpace );
 					}
 					
-					
-					dispatchEvent( new ResultEvent( SPACES_RESULT, false, true, spacesLookup ) );
-					
+					dispatchEvent( new ResultEvent( SPACES_RESULT, false, true, spaces ) );
 					break;
 				}
 				case "milestones":
@@ -206,10 +203,8 @@ package com.realeyes.assembla.service
 						spaceID = milestone.spaceID;
 					}
 					
-					if( milestones.length )
-					{	
-						dispatchEvent( new ResultEvent( MILESTONES_RESULT, false, true, milestones ) );
-					}
+					dispatchEvent( new ResultEvent( MILESTONES_RESULT, false, true, milestones ) );
+					break;
 				}
 				case "tickets":
 				{
@@ -233,14 +228,9 @@ package com.realeyes.assembla.service
 						
 						tickets.addItem( newTicket );
 						spaceID = newTicket.spaceID;
-						
 					}
 					
-					if( ticketsXML.length() )
-					{	
-						dispatchEvent( new ResultEvent( TICKETS_RESULT, false, true, tickets ) );
-					}
-					
+					dispatchEvent( new ResultEvent( TICKETS_RESULT, false, true, tickets ) );
 					break;
 				}
 				case "tasks":
@@ -254,8 +244,7 @@ package com.realeyes.assembla.service
 						tasks.addItem( task );
 					}
 					
-					dispatchEvent( new ResultEvent( TASK_RESULT, false, true, tasks ) );
-					
+					dispatchEvent( new ResultEvent( CREATED_RESULT, false, true, tasks ) );
 					break;
 				}
 			}
@@ -268,7 +257,7 @@ package com.realeyes.assembla.service
 			{
 				case 201:
 				{
-					dispatchEvent( new ResultEvent( TASK_RESULT, false, true, _loader.data ) );
+					dispatchEvent( new ResultEvent( CREATED_RESULT, false, true, _loader.data ) );
 					break;
 				}
 				case 422:

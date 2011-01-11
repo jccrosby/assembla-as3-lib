@@ -7,13 +7,15 @@ package com.realeyes.assembla.model
 	import mx.collections.Sort;
 	import mx.collections.SortField;
 	
+	[Event( name="spacesChanged", type="flash.events.Event" )]
+	[Event( name="ticketsChanged", type="flash.events.Event" )]
 	public class Assembla extends BaseVO
 	{
 		static public const SPACES_CHANGED:String = "spacesChanged";
-		public static const TASKS_CHANGE:String = "tasksChange";
+		public static const TICKETS_CHANGE:String = "ticketsChange";
 		
 		[Bindable]public var selectedTicket:Ticket;
-		private var _tasks:ArrayCollection;
+		private var _tickets:ArrayCollection;
 		
 		private var _spacesLookup:Dictionary;
 		private var _spaces:ArrayCollection;
@@ -35,7 +37,6 @@ package com.realeyes.assembla.model
 			collection.refresh();
 		}
 		
-		[Bindable]
 		public function get spacesLookup():Dictionary
 		{
 			return _spacesLookup;
@@ -45,38 +46,54 @@ package com.realeyes.assembla.model
 			if( _spacesLookup != value )
 			{ 
 				_spacesLookup = value;
+			}
+		}
+		
+		[Bindable( event="spacesChanged" )]
+		public function get spaces():ArrayCollection
+		{
+			return _spaces;
+		}
+		public function set spaces( value:ArrayCollection):void
+		{
+			if( _spaces != value )
+			{ 
+				_spaces = value;
+				sortSpaces( _spaces );
+				
+				for each( var space:Space in _spaces )
+				{
+					spacesLookup[ space.id ] = space;
+				}
 				dispatch( new Event( SPACES_CHANGED ) );
 			}
 		}
-
-		public function get spaces():ArrayCollection
+		
+		[Bindable( event="ticketsChange" )]
+		public function get tickets():ArrayCollection
 		{
-			var spacesCollection:ArrayCollection = new ArrayCollection();
-			for each( var space:Space in _spacesLookup )
+			return _tickets;
+		}
+		public function set tickets(value:ArrayCollection):void
+		{
+			if( value != _tickets )
 			{
-				spacesCollection.addItem( space );
+				_tickets = value;
+				if( _tickets.length )
+				{
+					var spaceID:String = Ticket( _tickets.getItemAt( 0 ) ).spaceID;
+					Space( spacesLookup[ spaceID ] ).tickets = _tickets;
+				}
+				dispatch( new Event( TICKETS_CHANGE ) );
 			}
-			sortSpaces( spacesCollection );
-			return spacesCollection;
 		}
 		
-		[Bindable( event="tasksChange" )]
-		public function get tasks():ArrayCollection
+		public function clear():void
 		{
-			return _tasks;
-		}
-		public function set tasks(value:ArrayCollection):void
-		{
-			_tasks = value;
-			dispatch( new Event( TASKS_CHANGE ) );
-		}
-		
-		public function clearData():void
-		{
-			spaces.removeAll();
-			spacesLookup = new Dictionary();
-			tasks.removeAll();
-			selectedTicket = new Ticket();
+			if( spaces ) spaces.removeAll();
+			if( spacesLookup) spacesLookup = new Dictionary();
+			if( tickets ) tickets.removeAll();
+			if( selectedTicket ) selectedTicket = new Ticket();
 		}
 	}
 }
