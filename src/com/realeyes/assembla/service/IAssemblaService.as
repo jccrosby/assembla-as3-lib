@@ -6,11 +6,8 @@ package com.realeyes.assembla.service
 	
 	import flash.events.IEventDispatcher;
 
-	public interface IAssemblaService
+	public interface IAssemblaService extends IEventDispatcher
 	{
-		function addEventListener( type:String, listener:Function, useCapture:Boolean=false, priority:int=0, useWeakReference:Boolean=false ):void
-		function removeEventListener( type:String, listener:Function, useCapture:Boolean=false ):void
-		function hasEventListener( type:String ):Boolean
 		function getSpaces():void;
 		function getTickets( space:com.realeyes.assembla.model.Space ):void;
 		function getMilestones( space:Space ):void;

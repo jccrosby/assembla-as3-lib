@@ -248,6 +248,10 @@ package com.realeyes.assembla.service
 					break;
 				}
 			}
+			
+			// FIXME: The service seems to be caching requests between logins
+			_loader = null;
+			_loader = new URLLoader();
 		}
 		
 		private function _onHTTPStatus( event:HTTPStatusEvent ):void
