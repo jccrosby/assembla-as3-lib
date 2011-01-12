@@ -9,7 +9,7 @@ package com.realeyes.assembla.service
 	public interface IAssemblaService extends IEventDispatcher
 	{
 		function getSpaces():void;
-		function getTickets( space:com.realeyes.assembla.model.Space ):void;
+		function getTickets( space:Space ):void;
 		function getMilestones( space:Space ):void;
 		function postTimeEntry( task:Task ):void
 		function getTimeEntries():void
